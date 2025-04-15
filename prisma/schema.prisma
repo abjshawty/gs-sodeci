@@ -385,7 +385,7 @@ model Organisation {
     user          User            @relation(fields: [userId], references: [id])
     societe       Societe         @relation(fields: [societyId], references: [id])
     Justification Justification[]
-    Profile       Profile[]
+    Profil        Profil[]
 }
 
 model Poste {
@@ -400,7 +400,7 @@ model Poste {
     Caisse    Caisse[]
 }
 
-model Profile {
+model Profil {
     id             String       @id @default(uuid())
     isDefault      Boolean
     organisationId String
@@ -430,13 +430,13 @@ model Reversement {
 }
 
 model Role {
-    id        String    @id @default(uuid())
+    id        String   @id @default(uuid())
     name      String
     status    String
     userId    String
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @default(now()) @updatedAt
-    Profile   Profile[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    Profil    Profil[]
 
     User User[]
 }
@@ -509,7 +509,7 @@ model User {
     lastLoginDate     DateTime            @default(now())
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @default(now()) @updatedAt
-    profile           Profile             @relation(fields: [profileId], references: [id])
+    profile           Profil              @relation(fields: [profileId], references: [id])
     role              Role                @relation(fields: [roleId], references: [id])
     Approvisionnement Approvisionnement[]
     AttributionCaisse AttributionCaisse[]
