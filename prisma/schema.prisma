@@ -388,6 +388,15 @@ model Organisation {
     Profil        Profil[]
 }
 
+model Password {
+    id        String   @id @default(uuid())
+    userId    String   @unique
+    value     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    user      User?
+}
+
 model Poste {
     id        String   @id @default(uuid())
     libelle   String
@@ -506,11 +515,13 @@ model User {
     isEmailConfirmed  Boolean
     profileId         String
     userId            String
+    passwordId        String              @unique
     lastLoginDate     DateTime            @default(now())
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @default(now()) @updatedAt
     profile           Profil              @relation(fields: [profileId], references: [id])
     role              Role                @relation(fields: [roleId], references: [id])
+    password          Password            @relation(fields: [passwordId], references: [userId])
     Approvisionnement Approvisionnement[]
     AttributionCaisse AttributionCaisse[]
     Caisse            Caisse[]

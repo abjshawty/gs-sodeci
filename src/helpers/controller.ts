@@ -4,7 +4,7 @@ class Controller<T> {
     constructor(collection: string) {
         this.collection = client[collection];
     }
-    async create(data: T) {
+    async create(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) {
         try {
             return await this.collection.create({
                 data
@@ -59,7 +59,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async search(query: { [key: string]: string; }, options: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; }) {
+    async search(query: { [key: string]: string; }, options: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, include?: { [key: string]: boolean; }; }): Promise<T[]> {
         try {
             return await this.collection.findMany({
                 where: {

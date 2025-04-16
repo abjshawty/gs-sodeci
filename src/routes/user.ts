@@ -14,6 +14,16 @@ const routes: FastifyPluginCallback = (server) => {
     });
 
     server.route({
+        method: "POST",
+        url: "/login",
+        schema: Schema.login,
+        handler: async (request: FastifyRequest<{ Body: { email: string; password: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.login(request.body);
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
         method: "GET",
         url: "/search",
         schema: Schema.search,

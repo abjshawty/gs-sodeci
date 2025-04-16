@@ -18,3 +18,4 @@ export const murder: () => void = () => process.exit(0);
 export const port: number = process.env.APP_PORT ? parseInt(process.env.APP_PORT) : 3000;
 export const topics: string[] = process.env.KAFKA_TOPICS ? process.env.KAFKA_TOPICS.split(",") : ["server"];
 export const role: role = process.env.KAFKA_ROLE as role || "none";
+export const domains = process.env.AD_DOMAINS ? process.env.AD_DOMAINS.split(",") : ["gs2e.ci"];
