@@ -5,7 +5,7 @@ import { env } from "../helpers";
 import coddyger from "coddyger";
 
 class Service extends ServiceFactory<Build> {
-    async login(data: { email: string; password: string; }) {
+    async login (data: { email: string; password: string; }) {
         try {
             if (data.email === "") {
                 const error: any = new Error("Email is required");
@@ -32,9 +32,9 @@ class Service extends ServiceFactory<Build> {
             if (agentWithEmail.length == 0) {
                 AgentController.create({
                     email: data.email,
-                    prenom: userWithEmail[0].firstname,
-                    nom: userWithEmail[0].lastname,
-                    matricule: userWithEmail[0].matricule,
+                    prenom: userWithEmail[0].firstname!,
+                    nom: userWithEmail[0].lastname!,
+                    matricule: userWithEmail[0].matricule!,
                     numCNPS: "",
                     localisation: "",
                     codeSociete: "",
@@ -59,5 +59,23 @@ class Service extends ServiceFactory<Build> {
             throw error;
         }
     };
+
+    async cleanUsers () {
+        try {
+            const users = await Controller.search({});
+            for (const user of users) {
+                if (user.firstname !== null) continue;
+                const agent = await AgentController.getByEmail(user.email);
+                if (agent) {
+                    await Controller.update(user.id, { firstname: agent.prenom, lastname: agent.nom, matricule: agent.matricule });
+                }
+            }
+            const agents = await AgentController.search({});
+            return { users, agents };
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
 }
 export default new Service(Controller);

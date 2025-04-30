@@ -18,45 +18,45 @@ model Activite {
 }
 
 model ActiviteCI {
-    id                 String           @id @default(uuid())
-    activiteId         String
-    centreImputationId String
-    createdAt          DateTime         @default(now())
-    updatedAt          DateTime         @default(now()) @updatedAt
-    activite           Activite         @relation(fields: [activiteId], references: [id])
-    centreImputation   CentreImputation @relation(fields: [centreImputationId], references: [id])
+    id                   String           @id @default(uuid())
+    codeActivite         String
+    codeCentreImputation String
+    createdAt            DateTime         @default(now())
+    updatedAt            DateTime         @default(now()) @updatedAt
+    activite             Activite         @relation(fields: [codeActivite], references: [code])
+    centreImputation     CentreImputation @relation(fields: [codeCentreImputation], references: [code])
 }
 
 model Agent {
     id                   String              @id @default(uuid())
-    matricule            String
-    nom                  String
-    prenom               String
-    numCNPS              String
-    localisation         String
-    email                String
-    codeSociete          String
-    exploitation         String
-    adresse              String
-    codeStatut           String
-    lastUser             String
-    lastDate             String
-    telephone            String
-    nomReseau            String
-    codeCategorieAgent   String
-    codeFonctionAgent    String
-    codeZoneIntervention String
+    matricule            String?
+    nom                  String?
+    prenom               String?
+    numCNPS              String?
+    localisation         String?
+    email                String?
+    codeSociete          String?
+    exploitation         String?
+    adresse              String?
+    codeStatut           String?
+    lastUser             String?
+    lastDate             String?
+    telephone            String?
+    nomReseau            String?
+    codeCategorieAgent   String?
+    codeFonctionAgent    String?
+    codeZoneIntervention String?
     isResponsableCI      Boolean
-    createdAt            DateTime            @default(now())
-    updatedAt            DateTime            @default(now()) @updatedAt
-    societe              Societe             @relation(fields: [codeSociete], references: [code])
-    categorieAgent       CategorieAgent      @relation(fields: [codeCategorieAgent], references: [code])
+    createdAt            DateTime?           @default(now())
+    updatedAt            DateTime?           @default(now()) @updatedAt
+    societe              Societe?            @relation(fields: [codeSociete], references: [code])
+    categorieAgent       CategorieAgent?     @relation(fields: [codeCategorieAgent], references: [code])
     AgentSession         AgentSession[]
     Approvisionnement    Approvisionnement[]
     Reversement          Reversement[]
     Bon_Beneficiaire     BonMission[]        @relation(name: "beneficiaire_bon")
     Bon_Emetteur         BonMission[]        @relation(name: "emetteur_bon")
-    zoneIntervention     ZoneIntervention    @relation(fields: [codeZoneIntervention], references: [code])
+    zoneIntervention     ZoneIntervention?   @relation(fields: [codeZoneIntervention], references: [code])
 }
 
 model AgentSession {
@@ -187,7 +187,7 @@ model CategorieAgent {
 
 model CentreImputation {
     id         String   @id @default(uuid())
-    code       String
+    code       String   @unique
     libelle    String
     codeEntite String
     createdAt  DateTime @default(now())
@@ -507,21 +507,21 @@ model TypeMission {
 model User {
     id                String              @id @default(uuid())
     email             String              @unique
-    firstname         String
-    lastname          String
-    matricule         String
+    firstname         String?
+    lastname          String?
+    matricule         String?
     status            String
-    roleId            String
+    roleId            String?
     isEmailConfirmed  Boolean
-    profileId         String
-    userId            String
-    passwordId        String              @unique
+    profileId         String?
+    userId            String?
+    passwordId        String?             @unique
     lastLoginDate     DateTime            @default(now())
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @default(now()) @updatedAt
-    profile           Profil              @relation(fields: [profileId], references: [id])
-    role              Role                @relation(fields: [roleId], references: [id])
-    password          Password            @relation(fields: [passwordId], references: [userId])
+    profile           Profil?             @relation(fields: [profileId], references: [id])
+    role              Role?               @relation(fields: [roleId], references: [id])
+    password          Password?           @relation(fields: [passwordId], references: [userId])
     Approvisionnement Approvisionnement[]
     AttributionCaisse AttributionCaisse[]
     Caisse            Caisse[]

@@ -1,10 +1,10 @@
 import { client } from "../db";
 class Controller<T> {
-    private collection: any;
-    constructor(collection: string) {
+    collection: any;
+    constructor (collection: string) {
         this.collection = client[collection];
     }
-    async create(data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) {
+    async create (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) {
         try {
             return await this.collection.create({
                 data
@@ -14,7 +14,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async getById(id: string) {
+    async getById (id: string) {
         try {
             return await this.collection.findUnique({
                 where: {
@@ -26,7 +26,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async getAll() {
+    async getAll () {
         try {
             return await this.collection.findMany();
         } catch (error: any) {
@@ -34,7 +34,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async update(id: string, data: Partial<T>) {
+    async update (id: string, data: Partial<T>) {
         try {
             return await this.collection.update({
                 where: {
@@ -47,7 +47,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async delete(id: string) {
+    async delete (id: string) {
         try {
             return await this.collection.delete({
                 where: {
@@ -59,7 +59,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async search(query: { [key: string]: string; }, options: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, include?: { [key: string]: boolean; }; }): Promise<T[]> {
+    async search (query: { [key: string]: string | null; }, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, include?: { [key: string]: boolean; }; }): Promise<T[]> {
         try {
             return await this.collection.findMany({
                 where: {
@@ -72,7 +72,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async vagueSearch(query: { [key: string]: string; }, options: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean; }) {
+    async vagueSearch (query: { [key: string]: string; }, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean; }) {
         const where = Object.keys(query).length !== 0 ? {
             OR: Object.keys(query).map(key => ({
                 [key]: {
@@ -90,7 +90,7 @@ class Controller<T> {
             });
             const items = await this.collection.count();
             const pages = Math.ceil(items / (options?.take || 10));
-            const currentPage = Math.floor(options.skip / (options.take)) + 1;
+            const currentPage = Math.floor((options?.skip || 0) / (options?.take || 10)) + 1;
             return {
                 record,
                 count,

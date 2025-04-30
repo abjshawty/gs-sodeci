@@ -19,3 +19,4 @@ export const port: number = process.env.APP_PORT ? parseInt(process.env.APP_PORT
 export const topics: string[] = process.env.KAFKA_TOPICS ? process.env.KAFKA_TOPICS.split(",") : ["server"];
 export const role: role = process.env.KAFKA_ROLE as role || "none";
 export const domains = process.env.AD_DOMAINS ? process.env.AD_DOMAINS.split(",") : ["gs2e.ci"];
+export const jwtPublic = process.env.JWT_PUBLIC || "secret";
