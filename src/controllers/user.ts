@@ -2,9 +2,77 @@ import { User as Build } from "@prisma/client";
 import { ControllerFactory } from "../helpers";
 import { msal } from "../helpers";
 import bcrypt from "bcryptjs";
-
+import { PrismaClient } from "@prisma/client";
 class CustomController extends ControllerFactory<Build> {
-    async externalLogin(email: string, password: string) {
+    constructor (collection: string) {
+        super(collection);
+        console.log("Initializing default user");
+        const prisma = new PrismaClient();
+        this.search({ id: "default" }, { take: 1, skip: 1 }).then((user) => {
+            const defaultExists = user.length > 0;
+            if (!defaultExists) {
+                console.log("Default user not found");
+                prisma.organisation.create({
+                    data: {
+                        id: "default",
+                        name: "default",
+                        status: "active",
+                        userId: "default",
+                        societyId: "default",
+                    }
+                }).then(() => {
+                    console.log("Default organisation created");
+                });
+                prisma.user.create({
+                    data: {
+                        id: "default",
+                        email: "admin@super.com",
+                        password: {
+                            create: {
+                                id: "default",
+                                value: bcrypt.hashSync("default", 10),
+                                userId: "default",
+                            }
+                        },
+                        role: {
+                            create: {
+                                id: "default",
+                                name: "default",
+                                status: "active",
+                                userId: "default",
+                            }
+                        },
+                        status: "active",
+                        isEmailConfirmed: true,
+                        profile: {
+                            create: {
+                                id: "default",
+                                isDefault: true,
+                                organisation: {
+                                    create: {
+                                        id: "default",
+                                        slug: "default",
+                                        userId: "default",
+                                    }
+                                },
+                                roleId: "default",
+                            }
+                        },
+                        firstname: "Admin",
+                        lastname: "Super",
+                        matricule: "admin",
+                        userId: "default",
+                        lastLoginDate: new Date()
+                    }
+                }).then(() => {
+                    console.log("Default user created");
+                }).catch((error) => {
+                    console.log("Default user not created", error);
+                });
+            }
+        });
+    }
+    async externalLogin (email: string, password: string) {
         try {
             const user = await this.search({ email }, { take: 1, skip: 1, include: { password: true } }); //@ts-ignore
             const currentPassword: string = user[0].password.value;
@@ -21,7 +89,7 @@ class CustomController extends ControllerFactory<Build> {
             throw error;
         }
     };
-    async internalLogin(email: string, password: string) {
+    async internalLogin (email: string, password: string) {
         try {
             const azureData: any = await msal.auth(email, password);
             if (azureData == "invalid_grant") {

@@ -18,7 +18,7 @@ const routes: FastifyPluginCallback = (server) => {
     server.route({
         method: "POST",
         url: "/generate-token",
-        preHandler: console.log,
+        // preHandler: console.log,
         handler: async (request: FastifyRequest, reply: FastifyReply) => {
             const body = request.body;
             const generateToken = (payload: any) => {
@@ -36,7 +36,18 @@ const routes: FastifyPluginCallback = (server) => {
                 }
             };
             let Q = generateToken(body);
-            return reply.status(200).send({ data: Q, message: "Token" }); // This is such an extremely unnecessary thing but legacy code isn't your friend
+            return reply.status(Q === "wrongkey" ? 400 : 200).send({ data: Q, message: "Token" }); // This is such an extremely unnecessary thing but legacy code isn't your friend
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/verify-token",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            const user = request.user;
+            // let Q = verifyToken(user);
+            let Q = "huh ?";
+            return reply.status(false ? 400 : 200).send({ data: Q, message: "Verify" });
         }
     });
 

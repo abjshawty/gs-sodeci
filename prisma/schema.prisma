@@ -378,11 +378,11 @@ model Organisation {
     id            String          @id @default(uuid())
     name          String
     status        String
-    userId        String
+    userId        String?
     societyId     String
     createdAt     DateTime        @default(now())
     updatedAt     DateTime        @default(now()) @updatedAt
-    user          User            @relation(fields: [userId], references: [id])
+    user          User?           @relation(fields: [userId], references: [id])
     societe       Societe         @relation(fields: [societyId], references: [id])
     Justification Justification[]
     Profil        Profil[]
@@ -468,10 +468,10 @@ model Societe {
     name         String
     code         String         @unique
     status       String
-    userId       String
+    userId       String?
     createdAt    DateTime       @default(now())
     updatedAt    DateTime       @default(now()) @updatedAt
-    user         User           @relation(fields: [userId], references: [id])
+    user         User?          @relation(fields: [userId], references: [id])
     Agent        Agent[]
     Organisation Organisation[]
 }
