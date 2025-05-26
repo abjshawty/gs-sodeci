@@ -12,7 +12,7 @@ class Service<T> {
             throw error;
         }
     }
-    async getAll () {
+    async getAll (): Promise<T[]> {
         try {
             return await this.controller.getAll();
         } catch (error: any) {
@@ -69,6 +69,27 @@ class Service<T> {
                 };
             }
             return strict ? await this.controller.search(query, passingOptions) : await this.controller.vagueSearch(query, passingOptions);
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+    async list (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }) {
+        try {
+            let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; };
+            if (!options) passingOptions = {
+                take: 10,
+                skip: 0
+            };
+            else {
+                passingOptions = {
+                    take: options.take || 10,
+                    skip: (options.page || 1) - 1,
+                    orderBy: options.orderBy
+                };
+            }
+            const result = await this.controller.vagueSearch(query, passingOptions);
+            return result.record;
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;

@@ -1,5 +1,5 @@
 import { User as Build } from "@prisma/client";
-import { User as Controller, Agent as AgentController } from "../controllers";
+import { User as Controller, Agent as AgentController, Profil as ProfileController } from "../controllers";
 import { ServiceFactory } from "../helpers";
 import { env } from "../helpers";
 import coddyger from "coddyger";
@@ -83,6 +83,38 @@ class Service extends ServiceFactory<Build> {
     async finishLogin (data: { profileId: string; userId: string; }) {
         try {
             return await Controller.finishLogin(data.profileId, data.userId);
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
+    override async create (data: {
+        email: string;
+        firstname: string | null;
+        lastname: string | null;
+        matricule: string | null;
+        status: string;
+        roleId: string | null;
+        isEmailConfirmed: boolean;
+        profileId: string | null;
+        userId: string | null;
+        passwordId: string | null;
+        lastLoginDate: Date;
+        createdAt: Date;
+        updatedAt: Date;
+    }) {
+        try {
+            if (!data.profileId || data.profileId === "") {
+                const profile = await ProfileController.getById("default");
+                if (!profile) {
+                    const error: any = new Error("Profile not found");
+                    error.statusCode = "404";
+                    throw error;
+                }
+                data = { ...data, profileId: profile.id };
+            }
+            return await Controller.create(data);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;

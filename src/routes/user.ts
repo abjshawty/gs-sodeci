@@ -114,6 +114,15 @@ const routes: FastifyPluginCallback = (server) => {
 
     server.route({
         method: "GET",
+        url: "/select",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            const result = await Service.list({ status: "active" }, { page: 1 });
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
         url: "/:id",
         schema: Schema.getOrDelete,
         handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
