@@ -28,31 +28,33 @@ class Service extends ServiceFactory<Build> {
                 error.statusCode = "404";
                 throw error;
             }
-            const agentWithEmail = await AgentController.search({ email: data.email }, { take: 1, skip: 0 });
-            if (agentWithEmail.length == 0) {
-                AgentController.create({
-                    email: data.email,
-                    prenom: userWithEmail[0].firstname!,
-                    nom: userWithEmail[0].lastname!,
-                    matricule: userWithEmail[0].matricule!,
-                    numCNPS: "",
-                    localisation: "",
-                    codeSociete: "",
-                    exploitation: "",
-                    adresse: "",
-                    codeStatut: "",
-                    lastUser: "",
-                    lastDate: "",
-                    telephone: "",
-                    nomReseau: "",
-                    codeCategorieAgent: "",
-                    codeFonctionAgent: "",
-                    codeZoneIntervention: "",
-                    isResponsableCI: false
-                });
-            } // TODO: Else update
             const internal = env.domains.includes(data.email.split("@")[1]);
-            if (internal) return await Controller.internalLogin(data.email, data.password);
+            if (internal) {
+                const agentWithEmail = await AgentController.search({ email: data.email }, { take: 1, skip: 0 });
+                if (agentWithEmail.length == 0) {
+                    AgentController.create({
+                        email: data.email,
+                        prenom: userWithEmail[0].firstname!,
+                        nom: userWithEmail[0].lastname!,
+                        matricule: userWithEmail[0].matricule!,
+                        numCNPS: "",
+                        localisation: "",
+                        codeSociete: "SOD",
+                        exploitation: "",
+                        adresse: "",
+                        codeStatut: "",
+                        lastUser: "",
+                        lastDate: "",
+                        telephone: "",
+                        nomReseau: "",
+                        codeCategorieAgent: null,
+                        codeFonctionAgent: null,
+                        codeZoneIntervention: null,
+                        isResponsableCI: false
+                    });
+                }
+                return await Controller.internalLogin(data.email, data.password);
+            }
             return await Controller.externalLogin(data.email, data.password);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
@@ -72,6 +74,15 @@ class Service extends ServiceFactory<Build> {
             }
             const agents = await AgentController.search({});
             return { users, agents };
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
+    async finishLogin (data: { profileId: string; userId: string; }) {
+        try {
+            return await Controller.finishLogin(data.profileId, data.userId);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;

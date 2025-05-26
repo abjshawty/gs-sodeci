@@ -80,7 +80,7 @@ export default function (server: FastifyInstance) {
     server.register(TypeCarburant, { prefix: "/typeCarburants" });
     server.register(TypeFrais, { prefix: "/typeFraiss" });
     server.register(TypeMission, { prefix: "/typeMissions" });
-    server.register(User, { prefix: "/users" });
+    server.register(User, { prefix: "/user" });
     server.register(UserPriority, { prefix: "/userPrioritys" });
     server.register(UserSession, { prefix: "/userSessions" });
     server.register(Ville, { prefix: "/villes" });

@@ -1,10 +1,10 @@
 import Controller from "./controller";
 class Service<T> {
     controller: Controller<T>;
-    constructor(controller: Controller<T>) {
+    constructor (controller: Controller<T>) {
         this.controller = controller;
     }
-    async create(data: T) {
+    async create (data: T) {
         try {
             return await this.controller.create(data);
         } catch (error: any) {
@@ -12,7 +12,7 @@ class Service<T> {
             throw error;
         }
     }
-    async getAll() {
+    async getAll () {
         try {
             return await this.controller.getAll();
         } catch (error: any) {
@@ -20,7 +20,7 @@ class Service<T> {
             throw error;
         }
     }
-    async getById(id: string) {
+    async getById (id: string) {
         try {
             return await this.controller.getById(id);
         } catch (error: any) {
@@ -28,7 +28,17 @@ class Service<T> {
             throw error;
         }
     }
-    async update(id: string, data: Partial<T>) {
+    async findOne (query: { [key: string]: string; }) {
+        try {
+            const result = await this.controller.search(query, { take: 1, skip: 0 });
+            if (result.length == 0) return null;
+            return result[0];
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+    async update (id: string, data: Partial<T>) {
         try {
             return await this.controller.update(id, data);
         } catch (error: any) {
@@ -36,7 +46,7 @@ class Service<T> {
             throw error;
         }
     }
-    async delete(id: string) {
+    async delete (id: string) {
         try {
             return await this.controller.delete(id);
         } catch (error: any) {
@@ -44,7 +54,7 @@ class Service<T> {
             throw error;
         }
     }
-    async search(query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }, strict: boolean = false) {
+    async search (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }, strict: boolean = false) {
         try {
             let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; };
             if (!options) passingOptions = {

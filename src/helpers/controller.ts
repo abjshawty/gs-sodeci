@@ -72,7 +72,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async vagueSearch (query: { [key: string]: string; }, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean; }) {
+    async vagueSearch (query: { [key: string]: string; }, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean, include?: { [key: string]: boolean; }; }) {
         const where = Object.keys(query).length !== 0 ? {
             OR: Object.keys(query).map(key => ({
                 [key]: {

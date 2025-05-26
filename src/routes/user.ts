@@ -4,6 +4,8 @@ import { jwtPublic, jwtSecret } from "../helpers/env";
 import { User as Build } from "@prisma/client";
 import { User as Service } from "../services";
 import { User as Schema } from "../schemas";
+import organisation from "../services/organisation";
+import { isValid } from "../helpers/auth";
 const routes: FastifyPluginCallback = (server) => {
     server.route({
         method: "POST",
@@ -56,8 +58,38 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/login",
         schema: Schema.login,
         handler: async (request: FastifyRequest<{ Body: { email: string; password: string; }; }>, reply: FastifyReply) => {
-            const result = await Service.login(request.body);
-            reply.send({ data: result });
+            console.log(request.body);
+            let result = await Service.login(request.body);
+            const org = await organisation.getById(result.profile.organisationId);
+            result.profile = [{ ...result.profile, _id: result.profile.id, organisation: org }];
+            console.log(result);
+            result = { ...result, _id: result.id };
+            reply.send({
+                data: {
+                    user: result,
+                    accessToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtSecret }),
+                    refreshToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtPublic })
+                }
+            });
+        }
+    });
+
+    server.route({
+        method: "POST",
+        url: "/login-final",
+        // schema: Schema.login,
+        preHandler: isValid,
+        handler: async (request: FastifyRequest<{ Body: { profileId: string; }; }>, reply: FastifyReply) => {
+            const profileId = request.body.profileId;
+            const userId = (request.user as { data: string; }).data;
+            const result = await Service.finishLogin({ profileId, userId });
+            reply.send({
+                data: {
+                    user: result,
+                    accessToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtSecret }),
+                    refreshToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtPublic })
+                }
+            });
         }
     });
 
