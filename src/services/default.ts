@@ -29,13 +29,13 @@ export async function init (): Promise<void> {
     const usersService = User;
     const adminOrganisation = await organisationService.findOne({ name: 'admin' });
     const adminProfile = await profileService.findOne({ id: 'default' });
-    const adminRole = await rolesService.findOne({ name: 'admin' });
-    const sodSociete = await societeService.findOne({ name: "SODECI" });
+    const adminRole = await rolesService.findOne({ id: 'default' });
+    let sodSociete = await societeService.findOne({ name: "SODECI" });
     const adminUser = await usersService.getById("default");
 
     if (!sodSociete) {
       console.log("Creating default society...");
-      await societeService.createDefault({
+      sodSociete = await societeService.createDefault({
         id: "6716a3b27bf781b53b3edaac",
         slug: "SOD",
         name: "SODECI",
@@ -53,7 +53,7 @@ export async function init (): Promise<void> {
         id: "default",
         name: "admin",
         status: "active",
-        societyId: "6716a3b27bf781b53b3edaac",
+        societyId: sodSociete?.id || null,
         createdAt: new Date(),
         updatedAt: new Date(),
         userId: null
@@ -110,6 +110,7 @@ export async function init (): Promise<void> {
       });
     }
 
+    await usersService.fillProfileId();
 
     initialized = true;
     console.log('Default service initialized successfully');

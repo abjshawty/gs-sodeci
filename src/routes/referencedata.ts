@@ -149,7 +149,7 @@ const routes: FastifyPluginCallback = (server) => {
                     status = 404;
                     break;
             }
-            reply.code(status).send({ data: result });
+            reply.code(status).send(result);
         }
     });
 

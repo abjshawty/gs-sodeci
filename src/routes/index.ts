@@ -75,6 +75,7 @@ export default function (server: FastifyInstance) {
     server.register(Organisation, { prefix: "/organisation" });
     server.register(Poste, { prefix: "/postes" });
     server.register(Profil, { prefix: "/profils" });
+    server.register(Profil, { prefix: "/user/profile" }); // wtf joel?
     server.register(Referencedata, { prefix: "/referencedata" });
     server.register(Reversement, { prefix: "/reversements" });
     server.register(Role, { prefix: "/role" });

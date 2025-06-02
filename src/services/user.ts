@@ -3,6 +3,7 @@ import { User as Controller, Agent as AgentController, Profil as ProfileControll
 import { ServiceFactory } from "../helpers";
 import { env } from "../helpers";
 import coddyger from "coddyger";
+import { client } from "../db";
 
 class Service extends ServiceFactory<Build> {
     async login (data: { email: string; password: string; }) {
@@ -142,6 +143,64 @@ class Service extends ServiceFactory<Build> {
             } //@ts-ignore
             const result = await this.controller.select(query, status, passingOptions);
             return result.record;
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
+    async updateByEmail (email: string, data: Partial<Build>) {
+        try {
+            const user = await Controller.search({ email }, { take: 1, skip: 0 });
+            if (user.length == 0) {
+                const error: any = new Error("User not found");
+                error.statusCode = "404";
+                throw error;
+            }
+            return await Controller.update(user[0].id, data, { include: { profile: true } });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+    async fillProfileId () {
+        try {
+            await client.user.updateMany({
+                where: {
+                    profileId: null
+                },
+                data: {
+                    profileId: "default"
+                }
+            });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+    async specialList1 () {
+        try {
+            const initialResult = await client.user.findMany({
+                where: {
+                    status: "active"
+                },
+                include: {
+                    profile: {
+                        include: {
+                            role: true
+                        }
+                    }
+                },
+                take: 25,
+                skip: 0
+            });
+            const formmated = initialResult.map((user) => {
+                return {
+                    ...user,
+                    profile: [{ ...user.profile, roles: [user.profile?.role] }]
+                };
+            });
+            return formmated;
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;

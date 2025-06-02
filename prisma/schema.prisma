@@ -377,13 +377,13 @@ model Numbon {
 model Organisation {
     id            String          @id @default(uuid())
     name          String
-    status        String
+    status        String          @default("active")
     userId        String?
-    societyId     String
+    societyId     String?
     createdAt     DateTime        @default(now())
     updatedAt     DateTime        @default(now()) @updatedAt
     user          User?           @relation(fields: [userId], references: [id])
-    societe       Societe         @relation(fields: [societyId], references: [id])
+    societe       Societe?        @relation(fields: [societyId], references: [id])
     Justification Justification[]
     Profil        Profil[]
 }
@@ -440,7 +440,7 @@ model Reversement {
 model Role {
     id        String   @id @default(uuid())
     name      String
-    status    String
+    status    String   @default("active")
     userId    String?
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
@@ -466,7 +466,7 @@ model Societe {
     slug         String
     name         String
     code         String         @unique
-    status       String
+    status       String         @default("active")
     userId       String?
     createdAt    DateTime       @default(now())
     updatedAt    DateTime       @default(now()) @updatedAt
@@ -509,9 +509,9 @@ model User {
     firstname         String?
     lastname          String?
     matricule         String?
-    status            String
+    status            String              @default("active")
     roleId            String?
-    isEmailConfirmed  Boolean
+    isEmailConfirmed  Boolean             @default(false)
     profileId         String?
     userId            String?
     passwordId        String?             @unique

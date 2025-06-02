@@ -92,18 +92,16 @@ class Service<T> {
             throw error;
         }
     }
-    async list (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }) {
+    async list (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }, include?: { [key: string]: boolean; }; }) {
         try {
-            let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; };
-            if (!options) passingOptions = {
-                take: 10,
-                skip: 0
-            };
+            let passingOptions: { take?: number, skip?: number, orderBy?: { [key: string]: "asc" | "desc"; }, include?: { [key: string]: boolean; }; };
+            if (!options) passingOptions = {};
             else {
                 passingOptions = {
-                    take: options.take || 10,
+                    take: options.take || 25,
                     skip: (options.page || 1) - 1,
-                    orderBy: options.orderBy
+                    orderBy: options.orderBy,
+                    include: options?.include
                 };
             }
             const result = await this.controller.vagueSearch(query, passingOptions);

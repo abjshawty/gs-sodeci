@@ -8,6 +8,25 @@ import organisation from "../services/organisation";
 import { isValid } from "../helpers/auth";
 const routes: FastifyPluginCallback = (server) => {
     server.route({
+        method: "PUT",
+        url: "/push-profile",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            // TODO: Frontend does not send any kind of meaningfull data
+            // await Service.fillProfileId();
+            reply.send({ data: "done" });
+        }
+    });
+    server.route({
+        method: "POST",
+        url: "/save",
+        schema: Schema.create,
+        handler: async (request: FastifyRequest<{ Body: Build & { profile?: []; }; }>, reply: FastifyReply) => {
+            delete request.body.profile;
+            const result = await Service.create(request.body);
+            reply.send({ data: result });
+        }
+    });
+    server.route({
         method: "POST",
         url: "/",
         schema: Schema.create,
@@ -125,7 +144,8 @@ const routes: FastifyPluginCallback = (server) => {
         method: "GET",
         url: "/select",
         handler: async (request: FastifyRequest, reply: FastifyReply) => {
-            const result = await Service.list({ status: "active" }, { page: 1 });
+            // const result = await Service.list({ status: "active" }, { page: 1, include: { profile: true } });
+            const result = await Service.specialList1();
             reply.send({ data: result });
         }
     });
@@ -148,7 +168,15 @@ const routes: FastifyPluginCallback = (server) => {
             reply.send({ data: result });
         }
     });
-
+    server.route({
+        method: "PUT",
+        url: "/edit-status",
+        schema: Schema.statusUpdate,
+        handler: async (request: FastifyRequest<{ Body: { email: string; status: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.updateByEmail(request.body.email, { status: request.body.status });
+            reply.send({ data: result });
+        }
+    });
     server.route({
         method: "PUT",
         url: "/:id",
