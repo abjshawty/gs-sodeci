@@ -120,5 +120,32 @@ class Service extends ServiceFactory<Build> {
             throw error;
         }
     }
+    /**
+ * 
+ * @param query bruh
+ * @param options same old, same old
+ * @returns paginated result, just like list
+ */
+    async select (query: string, status: string, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }) {
+        try {
+            let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; };
+            if (!options) passingOptions = {
+                take: 10,
+                skip: 0
+            };
+            else {
+                passingOptions = {
+                    take: options.take || 10,
+                    skip: (options.page || 1) - 1,
+                    orderBy: options.orderBy
+                };
+            } //@ts-ignore
+            const result = await this.controller.select(query, status, passingOptions);
+            return result.record;
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
 }
 export default new Service(Controller);

@@ -14,6 +14,16 @@ class Controller<T> {
             throw error;
         }
     }
+    async createDefault (data: T) {
+        try {
+            return await this.collection.create({
+                data
+            });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
     async getById (id: string) {
         try {
             return await this.collection.findUnique({
@@ -34,6 +44,19 @@ class Controller<T> {
             throw error;
         }
     }
+    async count (query?: { [key: string]: string; }) {
+        try {
+            return await this.collection.count({
+                where: {
+                    ...query
+                }
+            });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
     async update (id: string, data: Partial<T>) {
         try {
             return await this.collection.update({

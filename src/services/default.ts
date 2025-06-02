@@ -35,7 +35,7 @@ export async function init (): Promise<void> {
 
     if (!sodSociete) {
       console.log("Creating default society...");
-      await societeService.create({
+      await societeService.createDefault({
         id: "6716a3b27bf781b53b3edaac",
         slug: "SOD",
         name: "SODECI",
@@ -49,7 +49,7 @@ export async function init (): Promise<void> {
 
     if (!adminOrganisation) {
       console.log("Creating default organisation...");
-      await organisationService.create({
+      await organisationService.createDefault({
         id: "default",
         name: "admin",
         status: "active",
@@ -61,7 +61,7 @@ export async function init (): Promise<void> {
     }
     if (!adminRole) {
       console.log('Creating default admin role...');
-      await rolesService.create({
+      await rolesService.createDefault({
         name: 'admin',
         status: 'active',
         userId: null,
@@ -72,7 +72,7 @@ export async function init (): Promise<void> {
     }
     if (!adminProfile) {
       console.log("Creating default profile...");
-      await profileService.create({
+      await profileService.createDefault({
         id: "default",
         isDefault: true,
         organisationId: "default",

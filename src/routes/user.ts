@@ -18,6 +18,15 @@ const routes: FastifyPluginCallback = (server) => {
     });
 
     server.route({
+        method: "GET",
+        url: "/select2",
+        handler: async (request: FastifyRequest<{ Querystring: { page?: number; pageSize?: number; status?: string; q?: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.select(request.query.q || "", request.query.status || "active", { page: request.query.page || 1, take: request.query.pageSize || 10 });
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
         method: "POST",
         url: "/generate-token",
         // preHandler: console.log,

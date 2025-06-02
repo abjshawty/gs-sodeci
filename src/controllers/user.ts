@@ -4,6 +4,7 @@ import { msal } from "../helpers";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import profil from "./profil";
+import coddyger from "coddyger";
 class CustomController extends ControllerFactory<Build> {
     // constructor (collection: string) {
     //     super(collection);
@@ -73,6 +74,54 @@ class CustomController extends ControllerFactory<Build> {
     //         }
     //     });
     // }
+
+    async select (query: string, status: string, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; }) {
+        try {
+            const payloadIsId = coddyger.string.isValidObjectId(query);
+            if (!payloadIsId) {
+                return await this.collection.findMany({
+                    where: {
+                        AND: [
+                            {
+                                status: status
+                            },
+                            {
+                                OR: [
+                                    {
+                                        email: {
+                                            contains: query
+                                        }
+                                    },
+                                    {
+                                        firstname: {
+                                            contains: query
+                                        }
+                                    },
+                                    {
+                                        lastname: {
+                                            contains: query
+                                        }
+                                    },
+                                    {
+                                        matricule: {
+                                            contains: query
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    ...options
+                });
+            } else {
+                return await this.getById(query);
+            }
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
     async externalLogin (email: string, password: string) {
         try {
             const user = await this.search({ email }, { take: 1, skip: 0, include: { password: true, profile: true } });

@@ -4,9 +4,17 @@ class Service<T> {
     constructor (controller: Controller<T>) {
         this.controller = controller;
     }
-    async create (data: T) {
+    async create (data: Omit<T, 'id' | 'createdAt' | 'updatedAt'>) {
         try {
             return await this.controller.create(data);
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+    async createDefault (data: T) {
+        try {
+            return await this.controller.createDefault(data);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;
@@ -38,6 +46,16 @@ class Service<T> {
             throw error;
         }
     }
+    async count (query?: { [key: string]: string; }) {
+        try {
+            const result = await this.controller.count(query);
+            return result;
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
     async update (id: string, data: Partial<T>) {
         try {
             return await this.controller.update(id, data);
