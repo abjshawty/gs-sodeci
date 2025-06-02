@@ -29,7 +29,7 @@ export const create = {
             lastname: { type: "string" },
             password: { type: "string" },
         },
-        required: ["email", "firstname", "lastname", "password"],
+        required: ["email"],
     },
 };
 
@@ -50,6 +50,17 @@ export const update = {
             password: { type: "string" },
         },
         required: [],
+    },
+};
+
+export const statusUpdate = {
+    body: {
+        type: "object",
+        properties: {
+            email: { type: "string" },
+            status: { type: "string" },
+        },
+        required: ["email", "status"],
     },
 };
 

@@ -377,20 +377,19 @@ model Numbon {
 model Organisation {
     id            String          @id @default(uuid())
     name          String
-    status        String
-    userId        String
-    societyId     String
+    status        String          @default("active")
+    userId        String?
+    societyId     String?
     createdAt     DateTime        @default(now())
     updatedAt     DateTime        @default(now()) @updatedAt
-    user          User            @relation(fields: [userId], references: [id])
-    societe       Societe         @relation(fields: [societyId], references: [id])
+    user          User?           @relation(fields: [userId], references: [id])
+    societe       Societe?        @relation(fields: [societyId], references: [id])
     Justification Justification[]
     Profil        Profil[]
 }
 
 model Password {
     id        String   @id @default(uuid())
-    userId    String   @unique
     value     String
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
@@ -441,8 +440,8 @@ model Reversement {
 model Role {
     id        String   @id @default(uuid())
     name      String
-    status    String
-    userId    String
+    status    String   @default("active")
+    userId    String?
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
     Profil    Profil[]
@@ -467,11 +466,11 @@ model Societe {
     slug         String
     name         String
     code         String         @unique
-    status       String
-    userId       String
+    status       String         @default("active")
+    userId       String?
     createdAt    DateTime       @default(now())
     updatedAt    DateTime       @default(now()) @updatedAt
-    user         User           @relation(fields: [userId], references: [id])
+    user         User?          @relation(fields: [userId], references: [id])
     Agent        Agent[]
     Organisation Organisation[]
 }
@@ -510,9 +509,9 @@ model User {
     firstname         String?
     lastname          String?
     matricule         String?
-    status            String
+    status            String              @default("active")
     roleId            String?
-    isEmailConfirmed  Boolean
+    isEmailConfirmed  Boolean             @default(false)
     profileId         String?
     userId            String?
     passwordId        String?             @unique
@@ -521,7 +520,7 @@ model User {
     updatedAt         DateTime            @default(now()) @updatedAt
     profile           Profil?             @relation(fields: [profileId], references: [id])
     role              Role?               @relation(fields: [roleId], references: [id])
-    password          Password?           @relation(fields: [passwordId], references: [userId])
+    password          Password?           @relation(fields: [passwordId], references: [id])
     Approvisionnement Approvisionnement[]
     AttributionCaisse AttributionCaisse[]
     Caisse            Caisse[]

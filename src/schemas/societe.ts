@@ -13,9 +13,9 @@ export const getOrDelete = {
     params: {
         type: "object",
         properties: {
-            code: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["code"],
+        required: ["id"],
     },
 };
 
@@ -24,9 +24,22 @@ export const create = {
         type: "object",
         properties: {
             code: { type: "string" },
-            libelle: { type: "string" },
+            slug: { type: "string" },
+            name: { type: "string" },
         },
-        required: ["code", "libelle"],
+        required: ["code", "slug", "name"],
+    },
+};
+
+export const createIncomplete = {
+    body: {
+        type: "object",
+        properties: {
+            code: { type: "string" },
+            slug: { type: "string" },
+            name: { type: "string" },
+        },
+        required: ["name"],
     },
 };
 
@@ -34,15 +47,29 @@ export const update = {
     params: {
         type: "object",
         properties: {
-            code: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["code"],
+        required: ["id"],
     },
     body: {
         type: "object",
         properties: {
-            libelle: { type: "string" },
+            code: { type: "string" },
+            slug: { type: "string" },
+            name: { type: "string" },
         },
         required: [],
+    },
+};
+export const updateIncomplete = {
+    body: {
+        type: "object",
+        properties: {
+            _id: { type: "string" },
+            code: { type: "string" },
+            slug: { type: "string" },
+            name: { type: "string" },
+        },
+        required: ["_id"],
     },
 };

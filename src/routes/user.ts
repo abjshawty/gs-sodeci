@@ -4,7 +4,28 @@ import { jwtPublic, jwtSecret } from "../helpers/env";
 import { User as Build } from "@prisma/client";
 import { User as Service } from "../services";
 import { User as Schema } from "../schemas";
+import organisation from "../services/organisation";
+import { isValid } from "../helpers/auth";
 const routes: FastifyPluginCallback = (server) => {
+    server.route({
+        method: "PUT",
+        url: "/push-profile",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            // TODO: Frontend does not send any kind of meaningfull data
+            // await Service.fillProfileId();
+            reply.send({ data: "done" });
+        }
+    });
+    server.route({
+        method: "POST",
+        url: "/save",
+        schema: Schema.create,
+        handler: async (request: FastifyRequest<{ Body: Build & { profile?: []; }; }>, reply: FastifyReply) => {
+            delete request.body.profile;
+            const result = await Service.create(request.body);
+            reply.send({ data: result });
+        }
+    });
     server.route({
         method: "POST",
         url: "/",
@@ -16,9 +37,18 @@ const routes: FastifyPluginCallback = (server) => {
     });
 
     server.route({
+        method: "GET",
+        url: "/select2",
+        handler: async (request: FastifyRequest<{ Querystring: { page?: number; pageSize?: number; status?: string; q?: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.select(request.query.q || "", request.query.status || "active", { page: request.query.page || 1, take: request.query.pageSize || 10 });
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
         method: "POST",
         url: "/generate-token",
-        preHandler: console.log,
+        // preHandler: console.log,
         handler: async (request: FastifyRequest, reply: FastifyReply) => {
             const body = request.body;
             const generateToken = (payload: any) => {
@@ -36,7 +66,18 @@ const routes: FastifyPluginCallback = (server) => {
                 }
             };
             let Q = generateToken(body);
-            return reply.status(200).send({ data: Q, message: "Token" }); // This is such an extremely unnecessary thing but legacy code isn't your friend
+            return reply.status(Q === "wrongkey" ? 400 : 200).send({ data: Q, message: "Token" }); // This is such an extremely unnecessary thing but legacy code isn't your friend
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/verify-token",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            const user = request.user;
+            // let Q = verifyToken(user);
+            let Q = "huh ?";
+            return reply.status(false ? 400 : 200).send({ data: Q, message: "Verify" });
         }
     });
 
@@ -45,8 +86,38 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/login",
         schema: Schema.login,
         handler: async (request: FastifyRequest<{ Body: { email: string; password: string; }; }>, reply: FastifyReply) => {
-            const result = await Service.login(request.body);
-            reply.send({ data: result });
+            console.log(request.body);
+            let result = await Service.login(request.body);
+            const org = await organisation.getById(result.profile.organisationId);
+            result.profile = [{ ...result.profile, _id: result.profile.id, organisation: org }];
+            console.log(result);
+            result = { ...result, _id: result.id };
+            reply.send({
+                data: {
+                    user: result,
+                    accessToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtSecret }),
+                    refreshToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtPublic })
+                }
+            });
+        }
+    });
+
+    server.route({
+        method: "POST",
+        url: "/login-final",
+        // schema: Schema.login,
+        preHandler: isValid,
+        handler: async (request: FastifyRequest<{ Body: { profileId: string; }; }>, reply: FastifyReply) => {
+            const profileId = request.body.profileId;
+            const userId = (request.user as { data: string; }).data;
+            const result = await Service.finishLogin({ profileId, userId });
+            reply.send({
+                data: {
+                    user: result,
+                    accessToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtSecret }),
+                    refreshToken: server.jwt.sign({ data: result.id, reg: new Date() }, { expiresIn: "720m", key: jwtPublic })
+                }
+            });
         }
     });
 
@@ -71,6 +142,16 @@ const routes: FastifyPluginCallback = (server) => {
 
     server.route({
         method: "GET",
+        url: "/select",
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            // const result = await Service.list({ status: "active" }, { page: 1, include: { profile: true } });
+            const result = await Service.specialList1();
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
         url: "/:id",
         schema: Schema.getOrDelete,
         handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
@@ -87,7 +168,15 @@ const routes: FastifyPluginCallback = (server) => {
             reply.send({ data: result });
         }
     });
-
+    server.route({
+        method: "PUT",
+        url: "/edit-status",
+        schema: Schema.statusUpdate,
+        handler: async (request: FastifyRequest<{ Body: { email: string; status: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.updateByEmail(request.body.email, { status: request.body.status });
+            reply.send({ data: result });
+        }
+    });
     server.route({
         method: "PUT",
         url: "/:id",

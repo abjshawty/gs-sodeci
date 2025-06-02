@@ -2,8 +2,7 @@ export const search = {
     querystring: {
         type: "object",
         properties: {
-            code: { type: "string" },
-            libelle: { type: "string" },
+            name: { type: "string" },
         },
         required: [],
     },
@@ -13,9 +12,9 @@ export const getOrDelete = {
     params: {
         type: "object",
         properties: {
-            code: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["code"],
+        required: ["id"],
     },
 };
 
@@ -23,10 +22,9 @@ export const create = {
     body: {
         type: "object",
         properties: {
-            code: { type: "string" },
-            libelle: { type: "string" },
+            name: { type: "string" },
         },
-        required: ["code", "libelle"],
+        required: ["name"],
     },
 };
 
@@ -34,14 +32,26 @@ export const update = {
     params: {
         type: "object",
         properties: {
-            code: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["code"],
+        required: ["id"],
     },
     body: {
         type: "object",
         properties: {
-            libelle: { type: "string" },
+            name: { type: "string" },
+        },
+        required: [],
+    },
+};
+
+export const updateIncomplete = {
+    body: {
+        type: "object",
+        properties: {
+            _id: { type: "string" },
+            name: { type: "string" },
+            status: { type: "string" },
         },
         required: [],
     },

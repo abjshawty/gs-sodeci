@@ -14,6 +14,16 @@ class Controller<T> {
             throw error;
         }
     }
+    async createDefault (data: T) {
+        try {
+            return await this.collection.create({
+                data
+            });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
     async getById (id: string) {
         try {
             return await this.collection.findUnique({
@@ -34,13 +44,27 @@ class Controller<T> {
             throw error;
         }
     }
-    async update (id: string, data: Partial<T>) {
+    async count (query?: { [key: string]: string; }) {
+        try {
+            return await this.collection.count({
+                where: {
+                    ...query
+                }
+            });
+        } catch (error: any) {
+            if (!error.statusCode) error.statusCode = "500";
+            throw error;
+        }
+    }
+
+    async update (id: string, data: Partial<T>, options?: { include?: { [key: string]: boolean; }; }) {
         try {
             return await this.collection.update({
                 where: {
                     id
                 },
-                data
+                data,
+                ...options
             });
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
@@ -72,7 +96,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async vagueSearch (query: { [key: string]: string; }, options?: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean; }) {
+    async vagueSearch (query: { [key: string]: string; }, options?: { take?: number, skip?: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean, include?: { [key: string]: boolean; }; }) {
         const where = Object.keys(query).length !== 0 ? {
             OR: Object.keys(query).map(key => ({
                 [key]: {
