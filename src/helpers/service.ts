@@ -55,7 +55,6 @@ class Service<T> {
             throw error;
         }
     }
-
     async update (id: string, data: Partial<T>) {
         try {
             return await this.controller.update(id, data);
