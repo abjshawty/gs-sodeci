@@ -43,7 +43,7 @@ export async function init (): Promise<void> {
         status: "active",
         userId: null,
         createdAt: new Date(),
-        updatedAt: new Date(),
+        updatedAt: null,
       });
     }
 
