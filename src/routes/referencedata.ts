@@ -2,6 +2,7 @@ import { FastifyPluginCallback, FastifyRequest, FastifyReply } from "fastify";
 import * as Service from "../services";
 // import { TypeMission, TypeFrais, TypeCarburant } from "@prisma/client"
 import * as Build from "@prisma/client";
+import { link } from "fs";
 const routes: FastifyPluginCallback = (server) => {
     /**
      * CREATE paths for referenceDate requests
@@ -11,10 +12,15 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/:type",
         handler: async (request: FastifyRequest<{ Params: { type: string; }; Body: any; }>, reply: FastifyReply) => {
             let result: any[] = [];
+            let body: any = null;
             let status = 200;
             switch (request.params.type) {
                 case "typemissions":
-                    result = await Service.TypeMission.create(request.body as Omit<Build.TypeMission, 'id' | 'createdAt' | 'updatedAt'>);
+                    body = {
+                        code: (request.body as { codeTypeMission: string; }).codeTypeMission,
+                        libelle: (request.body as { libTypeMission: string; }).libTypeMission
+                    };
+                    result = await Service.TypeMission.create(body as Omit<Build.TypeMission, 'id' | 'createdAt' | 'updatedAt'>);
                     break;
                 case "typefrais":
                     result = await Service.TypeFrais.create(request.body as Omit<Build.TypeFrais, 'id' | 'createdAt' | 'updatedAt'>);
@@ -38,7 +44,11 @@ const routes: FastifyPluginCallback = (server) => {
                     result = await Service.Fonction.create(request.body as Omit<Build.Fonction, 'id' | 'createdAt' | 'updatedAt'>);
                     break;
                 case "moyentransports":
-                    result = await Service.MoyenTransport.create(request.body as Omit<Build.MoyenTransport, 'id' | 'createdAt' | 'updatedAt'>);
+                    body = {
+                        code: (request.body as { codeMoyenTransport: string; }).codeMoyenTransport,
+                        libelle: (request.body as { libelleMoyenTransport: string; }).libelleMoyenTransport
+                    };
+                    result = await Service.MoyenTransport.create(body as Omit<Build.MoyenTransport, 'id' | 'createdAt' | 'updatedAt'>);
                     break;
                 case "justifications":
                     result = await Service.Justification.create(request.body as Omit<Build.Justification, 'id' | 'createdAt' | 'updatedAt'>);
@@ -65,7 +75,11 @@ const routes: FastifyPluginCallback = (server) => {
                     result = await Service.GrilleKilometrique.create(request.body as Omit<Build.GrilleKilometrique, 'id' | 'createdAt' | 'updatedAt'>);
                     break;
                 case "zoneinterventions":
-                    result = await Service.ZoneIntervention.create(request.body as Omit<Build.ZoneIntervention, 'id' | 'createdAt' | 'updatedAt'>);
+                    body = {
+                        code: (request.body as { codeZoneIntervention: string; libZoneIntervention: string; }).codeZoneIntervention,
+                        libelle: (request.body as { codeZoneIntervention: string; libZoneIntervention: string; }).libZoneIntervention
+                    };
+                    result = await Service.ZoneIntervention.create(body as Omit<Build.ZoneIntervention, 'id' | 'createdAt' | 'updatedAt'>);
                     break;
                 case "itinerairedistances":
                     result = await Service.ItineraireDistance.create(request.body as Omit<Build.ItineraireDistance, 'id' | 'createdAt' | 'updatedAt'>);
@@ -90,21 +104,36 @@ const routes: FastifyPluginCallback = (server) => {
             switch (request.params.type) {
                 case "typemissions":
                     result = await Service.TypeMission.list({});
+                    result = result.map((item: Build.TypeMission) => {
+                        return { ...item, codeTypeMission: item.code, libTypeMission: item.libelle };
+                    });
                     break;
                 case "typefrais":
                     result = await Service.TypeFrais.list({});
+                    result = result.map((item: Build.TypeFrais) => {
+                        return { ...item, codeTypeFrais: item.code, libTypeFrais: item.libelle };
+                    });
                     break;
                 case "typecarburant":
                     result = await Service.TypeCarburant.list({});
+                    result = result.map((item: Build.TypeCarburant) => {
+                        return { ...item, codeTypeCarburant: item.code, libTypeCarburant: item.libelle };
+                    });
                     break;
                 case "departarrives":
                     result = await Service.DepartArrive.list({});
                     break;
                 case "villes":
                     result = await Service.Ville.list({});
+                    result = result.map((item: Build.Ville) => {
+                        return { ...item, codeVille: item.code, libelleVille: item.libelle };
+                    });
                     break;
                 case "categorieagents":
                     result = await Service.CategorieAgent.list({});
+                    result = result.map((item: Build.CategorieAgent) => {
+                        return { ...item, codeCategorieAgent: item.code, libelleCategorieAgent: item.libelle };
+                    });
                     break;
                 case "postes":
                     result = await Service.Poste.list({});
@@ -114,15 +143,24 @@ const routes: FastifyPluginCallback = (server) => {
                     break;
                 case "moyentransports":
                     result = await Service.MoyenTransport.list({});
+                    result = result.map((item: Build.MoyenTransport) => {
+                        return { ...item, codeMoyenTransport: item.code, libelleMoyenTransport: item.libelle };
+                    });
                     break;
                 case "justifications":
                     result = await Service.Justification.list({});
                     break;
                 case "carburants":
                     result = await Service.TypeCarburant.list({});
+                    result = result.map((item: Build.TypeCarburant) => {
+                        return { ...item, codeTypeCarburant: item.code, libelleTypeCarburant: item.libelle };
+                    });
                     break;
                 case "activites":
                     result = await Service.Activite.list({});
+                    result = result.map((item: Build.Activite) => {
+                        return { ...item, codeActivite: item.code, libelleActivite: item.libelle };
+                    });
                     break;
                 case "activitecis":
                     result = await Service.ActiviteCI.list({});
@@ -141,6 +179,9 @@ const routes: FastifyPluginCallback = (server) => {
                     break;
                 case "zoneinterventions":
                     result = await Service.ZoneIntervention.list({});
+                    result = result.map((item: Build.ZoneIntervention) => {
+                        return { ...item, codeZoneIntervention: item.code, libelleZoneIntervention: item.libelle };
+                    });
                     break;
                 case "itinerairedistances":
                     result = await Service.ItineraireDistance.list({});
@@ -162,12 +203,21 @@ const routes: FastifyPluginCallback = (server) => {
             switch (request.params.type) {
                 case "typemissions":
                     result = await Service.TypeMission.search(request.query);
+                    result = result.map((item: Build.TypeMission) => {
+                        return { ...item, codeTypeMission: item.code, libTypeMission: item.libelle };
+                    });
                     break;
                 case "typefrais":
                     result = await Service.TypeFrais.search(request.query);
+                    result = result.map((item: Build.TypeFrais) => {
+                        return { ...item, codeTypeFrais: item.code, libTypeFrais: item.libelle };
+                    });
                     break;
                 case "typecarburant":
                     result = await Service.TypeCarburant.search(request.query);
+                    result = result.map((item: Build.TypeCarburant) => {
+                        return { ...item, codeTypeCarburant: item.code, libTypeCarburant: item.libelle };
+                    });
                     break;
                 case "departarrives":
                     result = await Service.DepartArrive.search(request.query);
@@ -213,9 +263,101 @@ const routes: FastifyPluginCallback = (server) => {
                     break;
                 case "zoneinterventions":
                     result = await Service.ZoneIntervention.search(request.query);
+                    result = result.map((item: Build.ZoneIntervention) => {
+                        return { ...item, codeZoneIntervention: item.code, libelleZoneIntervention: item.libelle };
+                    });
                     break;
                 case "itinerairedistances":
                     result = await Service.ItineraireDistance.search(request.query);
+                    break;
+                default:
+                    status = 404;
+                    break;
+            }
+            reply.code(status).send({ data: result });
+        }
+    });
+    server.route({
+        method: "GET",
+        url: "/:type/paginate/:page",
+        handler: async (request: FastifyRequest<{ Params: { type: string; page: number; }, Querystring: { [key: string]: string; }; }>, reply: FastifyReply) => { // TODO: Check if paginated
+            let result: any = {};
+            let status = 200;
+            switch (request.params.type) {
+                case "typemissions":
+                    result = await Service.TypeMission.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.TypeMission) => {
+                        return { ...item, codeTypeMission: item.code, libTypeMission: item.libelle };
+                    });
+                    break;
+                case "typefrais":
+                    result = await Service.TypeFrais.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.TypeFrais) => {
+                        return { ...item, codeTypeFrais: item.code, libTypeFrais: item.libelle };
+                    });
+                    break;
+                case "typecarburant":
+                    result = await Service.TypeCarburant.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.TypeCarburant) => {
+                        return { ...item, codeTypeCarburant: item.code, libTypeCarburant: item.libelle };
+                    });
+                    break;
+                case "departarrives":
+                    result = await Service.DepartArrive.search(request.query, { page: request.params.page });
+                    break;
+                case "villes":
+                    result = await Service.Ville.search(request.query, { page: request.params.page });
+                    break;
+                case "categorieagents":
+                    result = await Service.CategorieAgent.search(request.query, { page: request.params.page });
+                    break;
+                case "postes":
+                    result = await Service.Poste.search(request.query, { page: request.params.page });
+                    break;
+                case "fonctions":
+                    result = await Service.Fonction.search(request.query, { page: request.params.page });
+                    break;
+                case "moyentransports":
+                    result = await Service.MoyenTransport.search(request.query, { page: request.params.page });
+                    break;
+                case "justifications":
+                    result = await Service.Justification.search(request.query, { page: request.params.page });
+                    break;
+                case "carburants":
+                    result = await Service.TypeCarburant.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.TypeCarburant) => {
+                        return { ...item, codeTypeCarburant: item.code, libTypeCarburant: item.libelle };
+                    });
+                    break;
+                case "activites":
+                    result = await Service.Activite.search(request.query, { page: request.params.page });
+                    break;
+                case "activitecis":
+                    result = await Service.ActiviteCI.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.ActiviteCI) => {
+                        return { ...item, codeact: item.codeActivite, libact: item.codeActivite };
+                    });
+                    break;
+                case "agents":
+                    result = await Service.Agent.search(request.query, { page: request.params.page });
+                    break;
+                case "centreinputations":
+                    result = await Service.CentreImputation.search(request.query, { page: request.params.page });
+                    break;
+                case "grillefrais":
+                    result = await Service.GrilleFrais.search(request.query, { page: request.params.page });
+                    break;
+                case "grillekilometriques":
+                    result = await Service.GrilleKilometrique.search(request.query, { page: request.params.page });
+                    break;
+                case "zoneinterventions":
+                    result = await Service.ZoneIntervention.search(request.query, { page: request.params.page });
+                    result = result.map((item: Build.ZoneIntervention) => {
+                        return { ...item, codeZoneIntervention: item.code, libelleZoneIntervention: item.libelle };
+                    });
+                    break;
+                case "itinerairedistances":
+                    result = await Service.ItineraireDistance.search(request.query, { page: request.params.page });
                     break;
                 default:
                     status = 404;
@@ -305,16 +447,30 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/:type/:id",
         handler: async (request: FastifyRequest<{ Params: { type: string; id: string; }; Body: any; }>, reply) => {
             let result: any[] = [];
+            let body: any = null;
             let status = 200;
             switch (request.params.type) {
                 case "typemissions":
-                    result = await Service.TypeMission.update(request.params.id, request.body as Partial<Build.TypeMission>);
+                    body = {
+                        code: (request.body as { codeTypeMission: string; libTypeMission: string; }).codeTypeMission,
+                        libelle: (request.body as { codeTypeMission: string; libTypeMission: string; }).libTypeMission
+                    };
+                    console.log(body);
+                    result = await Service.TypeMission.update(request.params.id, body);
                     break;
                 case "typefrais":
-                    result = await Service.TypeFrais.update(request.params.id, request.body as Partial<Build.TypeFrais>);
+                    body = {
+                        code: (request.body as Build.TypeFrais).code,
+                        libelle: (request.body as Build.TypeFrais).libelle
+                    };
+                    result = await Service.TypeFrais.update(request.params.id, body);
                     break;
                 case "typecarburant":
-                    result = await Service.TypeCarburant.update(request.params.id, request.body as Partial<Build.TypeCarburant>);
+                    body = {
+                        code: (request.body as Build.TypeCarburant).code,
+                        libelle: (request.body as Build.TypeCarburant).libelle
+                    };
+                    result = await Service.TypeCarburant.update(request.params.id, body);
                     break;
                 case "departarrives":
                     result = await Service.DepartArrive.update(request.params.id, request.body as Partial<Build.DepartArrive>);
@@ -332,7 +488,11 @@ const routes: FastifyPluginCallback = (server) => {
                     result = await Service.Fonction.update(request.params.id, request.body as Partial<Build.Fonction>);
                     break;
                 case "moyentransports":
-                    result = await Service.MoyenTransport.update(request.params.id, request.body as Partial<Build.MoyenTransport>);
+                    body = {
+                        code: (request.body as { codeMoyenTransport: string; }).codeMoyenTransport,
+                        libelle: (request.body as { libelleMoyenTransport: string; }).libelleMoyenTransport
+                    };
+                    result = await Service.MoyenTransport.update(request.params.id, body as Partial<Build.MoyenTransport>);
                     break;
                 case "justifications":
                     result = await Service.Justification.update(request.params.id, request.body as Partial<Build.Justification>);
@@ -359,10 +519,21 @@ const routes: FastifyPluginCallback = (server) => {
                     result = await Service.GrilleKilometrique.update(request.params.id, request.body as Partial<Build.GrilleKilometrique>);
                     break;
                 case "zoneinterventions":
-                    result = await Service.ZoneIntervention.update(request.params.id, request.body as Partial<Build.ZoneIntervention>);
+                    body = {
+                        code: (request.body as { codeZoneIntervention: string; libZoneIntervention: string; }).codeZoneIntervention,
+                        libelle: (request.body as { codeZoneIntervention: string; libZoneIntervention: string; }).libZoneIntervention
+                    };
+                    result = await Service.ZoneIntervention.update(request.params.id, body as Partial<Build.ZoneIntervention>);
                     break;
                 case "itinerairedistances":
                     result = await Service.ItineraireDistance.update(request.params.id, request.body as Partial<Build.ItineraireDistance>);
+                    break;
+                case "natures":
+                    const id = request.params.id;
+                    const data = {
+                        libelle: (request.body as { libNature: string; }).libNature,
+                    };
+                    result = await Service.Nature.update(id, data);
                     break;
                 default:
                     status = 404;
@@ -438,6 +609,9 @@ const routes: FastifyPluginCallback = (server) => {
                     break;
                 case "itinerairedistances":
                     result = await Service.ItineraireDistance.delete(request.params.id);
+                    break;
+                case "natures":
+                    result = await Service.Nature.delete(request.params.id);
                     break;
                 default:
                     status = 404;

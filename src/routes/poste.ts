@@ -61,5 +61,54 @@ const routes: FastifyPluginCallback = (server) => {
             reply.send({ data: result });
         }
     });
+
+    server.route({
+        method: "POST",
+        url: "/save",
+        schema: Schema.create,
+        handler: async (request: FastifyRequest<{ Body: Build; }>, reply: FastifyReply) => {
+            const body = {
+                ...request.body,
+                status: "active",
+                userId: (request.user as { id: string; })?.id || "default"
+            };
+            console.log(body);
+            const result = await Service.create(body);
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/paginate/:page",
+        schema: Schema.paginate,
+        handler: async (request: FastifyRequest<{ Querystring: { name: string; }; Params: { page: number; }; }>, reply: FastifyReply) => {
+            const result = await Service.search(request.query, { page: request.params.page });
+            reply.send({ data: result });
+        }
+    });
+
+    // server.route({
+    //     method: "PUT",
+    //     url: "/update",
+    //     schema: Schema.uhpdate,
+    //     handler: async (request: FastifyRequest<{
+    //         Body: {
+    //             _id: string,
+    //             code: string,
+    //             libelle: string,
+    //             lieu: string,
+    //         };
+    //     }>, reply: FastifyReply) => {
+    //         const id = request.body._id;
+    //         const body: Partial<Build> = {
+    //             libelle: request.body.libelle,
+    //             code: request.body.code,
+    //             lieu: request.body.lieu,
+    //         };
+    //         const result = await Service.update(id, body);
+    //         reply.send({ data: result });
+    //     }
+    // });
 };
 export default routes;

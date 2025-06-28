@@ -1,8 +1,24 @@
+export const paginate = {
+    params: {
+        type: "object",
+        properties: {
+            page: { type: "number" }
+        },
+        required: ["page"],
+    },
+    querystring: {
+        type: "object",
+        properties: {
+            libelle: { type: "string" },
+        },
+        required: [],
+    },
+};
+
 export const search = {
     querystring: {
         type: "object",
         properties: {
-            code: { type: "string" },
             libelle: { type: "string" },
         },
         required: [],
@@ -23,10 +39,9 @@ export const create = {
     body: {
         type: "object",
         properties: {
-            code: { type: "string" },
             libelle: { type: "string" },
         },
-        required: ["code", "libelle"],
+        required: ["libelle"],
     },
 };
 

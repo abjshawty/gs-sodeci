@@ -1,7 +1,8 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
-import { Caisse as Build } from "@prisma/client";
-import { Caisse as Service } from "../services";
+import { Caisse as Build, Approvisionnement } from "@prisma/client";
+import { Caisse as Service, Approvisionnement as ApprovisionnementService, Poste as PosteService } from "../services";
 import { Caisse as Schema } from "../schemas";
+import { request } from "http";
 const routes: FastifyPluginCallback = (server) => {
     server.route({
         method: "POST",
@@ -59,6 +60,94 @@ const routes: FastifyPluginCallback = (server) => {
         handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
             const result = await Service.delete(request.params.id);
             reply.send({ data: result });
+        }
+    });
+
+
+    server.route({
+        method: "POST",
+        url: "/save",
+        schema: Schema.create,
+        handler: async (request: FastifyRequest<{ Body: { code: string; libelle: string; lieu: string; poste: string; }; }>, reply: FastifyReply) => {
+            const poste = await PosteService.getById(request.body.poste);
+            if (!poste) {
+                reply.send({ error: "Poste not found" });
+                return;
+            }
+            const body = {
+                status: "active",
+                userId: poste.userId || "default",
+                code: request.body.code,
+                libelle: request.body.libelle,
+                lieu: request.body.lieu,
+                posteId: poste.id,
+            };
+            const result = await Service.create(body);
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/paginate/:page",
+        schema: Schema.paginate,
+        handler: async (request: FastifyRequest<{ Querystring: { name: string; }; Params: { page: number; }; }>, reply: FastifyReply) => {
+            const result = await Service.search(request.query, { page: request.params.page, include: { poste: true } });
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "PUT",
+        url: "/update",
+        schema: Schema.uhpdate,
+        handler: async (request: FastifyRequest<{
+            Body: {
+                _id: string,
+                code: string,
+                libelle: string,
+                lieu: string,
+            };
+        }>, reply: FastifyReply) => {
+            const id = request.body._id;
+            const body: Partial<Build> = {
+                libelle: request.body.libelle,
+                code: request.body.code,
+                lieu: request.body.lieu,
+            };
+            const result = await Service.update(id, body);
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/attributions/find/:id",
+        schema: Schema.getOrDelete,
+        handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
+            const result = await Service.getById(request.params.id, { include: { attributionCaisse: true } });
+            result.attribution = result.attributionCaisse;
+            reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/approvisionnements/paginate/:page",
+        schema: Schema.paginate,
+        handler: async (request: FastifyRequest<{ Querystring: { name: string; }; Params: { page: number; }; }>, reply: FastifyReply) => { // @ts-ignore
+            const result: { record: Approvisionnement[], count: number, items: number, pages: number, currentPage: number; } = await ApprovisionnementService.search(request.query, { page: request.params.page });
+            const finalResult: { record: Approvisionnement[]; } = {
+                record: result.record.map((item: Approvisionnement) => {
+                    return {
+                        ...item,
+                        idbeneficiaire: "item.beneficiaireId",
+                        numerobon: item.numeroBon,
+
+                    };
+                })
+            };
+            reply.send({ data: finalResult });
         }
     });
 };

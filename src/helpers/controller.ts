@@ -24,21 +24,27 @@ class Controller<T> {
             throw error;
         }
     }
-    async getById (id: string) {
+    async getById (id: string, options?: { include?: { [key: string]: boolean; }; }) {
         try {
             return await this.collection.findUnique({
                 where: {
                     id
-                }
+                },
+                ...options
             });
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "404";
             throw error;
         }
     }
-    async getAll () {
+    async getAll (options?: { where?: { [key: string]: string; }; include?: { [key: string]: boolean; }; }) {
         try {
-            return await this.collection.findMany();
+            return await this.collection.findMany({
+                where: {
+                    ...options?.where
+                },
+                ...options
+            });
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;
@@ -96,7 +102,7 @@ class Controller<T> {
             throw error;
         }
     }
-    async vagueSearch (query: { [key: string]: string; }, options?: { take?: number, skip?: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean, include?: { [key: string]: boolean; }; }) {
+    async vagueSearch (query: { [key: string]: string; }, options?: { take?: number, skip?: number, orderBy?: { [key: string]: "asc" | "desc"; }, vague?: boolean, include?: { [key: string]: boolean; }; }): Promise<{ record: T[], count: number, items: number, pages: number, currentPage: number; }> {
         const where = Object.keys(query).length !== 0 ? {
             OR: Object.keys(query).map(key => ({
                 [key]: {
@@ -115,6 +121,11 @@ class Controller<T> {
             const items = await this.collection.count();
             const pages = Math.ceil(items / (options?.take || 10));
             const currentPage = Math.floor((options?.skip || 0) / (options?.take || 10)) + 1;
+
+            // Only in this project because Joël doesn't understand proper structure
+            for (let i = 0; i < record.length; i++) {
+                record[i]._id = record[i].id;
+            }
             return {
                 record,
                 count,

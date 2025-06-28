@@ -45,7 +45,7 @@ import Ville from "./ville";
 import ZoneIntervention from "./zoneIntervention";
 export default function (server: FastifyInstance) {
     server.register(Activite, { prefix: "/activites" });
-    server.register(ActiviteCI, { prefix: "/activiteCIs" });
+    server.register(ActiviteCI, { prefix: "/activitecis" });
     server.register(Agent, { prefix: "/agents" });
     server.register(AgentSession, { prefix: "/agentSessions" });
     server.register(Approvisionnement, { prefix: "/approvisionnements" });
@@ -73,14 +73,16 @@ export default function (server: FastifyInstance) {
     server.register(NatureCompte, { prefix: "/natureComptes" });
     server.register(Numbon, { prefix: "/numbons" });
     server.register(Organisation, { prefix: "/organisation" });
+    server.register(Organisation, { prefix: "/entreprise/organisation" });
     server.register(Poste, { prefix: "/postes" });
     server.register(Profil, { prefix: "/profils" });
     server.register(Profil, { prefix: "/user/profile" }); // wtf joel?
     server.register(Referencedata, { prefix: "/referencedata" });
     server.register(Reversement, { prefix: "/reversements" });
     server.register(Role, { prefix: "/role" });
-    server.register(SchemaComptable, { prefix: "/schemaComptables" });
+    server.register(SchemaComptable, { prefix: "/schemacomptables" });
     server.register(Societe, { prefix: "/societe" });
+    server.register(Societe, { prefix: "/entreprise/societe" });
     server.register(TypeCarburant, { prefix: "/typeCarburants" });
     server.register(TypeFrais, { prefix: "/typeFraiss" });
     server.register(TypeMission, { prefix: "/typeMissions" });
