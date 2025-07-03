@@ -47,7 +47,7 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/select",
         handler: async (request: FastifyRequest, reply: FastifyReply) => {
             const result = await Service.list({ status: "active" }, { page: 1, include: { societe: true } }); // @ts-ignore
-            const data = result.map((item) => ({ ...item, _id: item.id, societe: { ...item.societe, _id: item.societe.id } }));
+            const data = result.map((item) => ({ ...item, _id: item.id, societe: { ...item.societe, _id: item.societe?.id } }));
             reply.send({ data });
         }
     });
