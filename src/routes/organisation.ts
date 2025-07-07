@@ -19,12 +19,14 @@ const routes: FastifyPluginCallback = (server) => {
         url: "/save",
         preHandler: isValid,
         schema: Schema.create,
-        handler: async (request: FastifyRequest<{ Body: Build; }>, reply: FastifyReply) => {
+        handler: async (request: FastifyRequest<{ Body: Build & { societe?: string; }; }>, reply: FastifyReply) => {
             console.log(request.user);
             const data = {
                 ...request.body,
                 userId: (request.user as { data: string; }).data,
             };
+            data.societyId = request.body.societe || null;
+            delete data.societe;
             const result = await Service.create(data);
             reply.send({ data: result });
         }
@@ -44,8 +46,8 @@ const routes: FastifyPluginCallback = (server) => {
         method: "GET",
         url: "/select",
         handler: async (request: FastifyRequest, reply: FastifyReply) => {
-            const result = await Service.list({ status: "active" }, { page: 1 });
-            const data = result.map((item) => ({ ...item, _id: item.id }));
+            const result = await Service.list({ status: "active" }, { page: 1, include: { societe: true } }); // @ts-ignore
+            const data = result.map((item) => ({ ...item, _id: item.id, societe: { ...item.societe, _id: item.societe?.id || "" } }));
             reply.send({ data });
         }
     });

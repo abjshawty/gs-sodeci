@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Activite {
-    id        String   @id @default(uuid())
-    code      String   @unique
+    id        String    @id @default(uuid())
+    code      String    @unique
     libelle   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 
     ActiviteCI ActiviteCI[]
 }
@@ -22,7 +22,7 @@ model ActiviteCI {
     codeActivite         String
     codeCentreImputation String
     createdAt            DateTime         @default(now())
-    updatedAt            DateTime         @default(now()) @updatedAt
+    updatedAt            DateTime?        @default(now()) @updatedAt
     activite             Activite         @relation(fields: [codeActivite], references: [code])
     centreImputation     CentreImputation @relation(fields: [codeCentreImputation], references: [code])
 }
@@ -60,16 +60,16 @@ model Agent {
 }
 
 model AgentSession {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     agentId   String
-    token     String   @unique
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    agent     Agent    @relation(fields: [agentId], references: [id])
+    token     String    @unique
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
+    agent     Agent     @relation(fields: [agentId], references: [id])
 }
 
 model Approvisionnement {
-    id             String   @id @default(uuid())
+    id             String    @id @default(uuid())
     caisseId       String
     userId         String
     beneficiaireId String
@@ -77,11 +77,11 @@ model Approvisionnement {
     montant        Float
     motif          String
     status         String
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @default(now()) @updatedAt
-    caisse         Caisse   @relation(fields: [caisseId], references: [id])
-    user           User     @relation(fields: [userId], references: [id])
-    beneficiaire   Agent    @relation(fields: [beneficiaireId], references: [id])
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime? @default(now()) @updatedAt
+    caisse         Caisse    @relation(fields: [caisseId], references: [id])
+    user           User      @relation(fields: [userId], references: [id])
+    beneficiaire   Agent     @relation(fields: [beneficiaireId], references: [id])
 }
 
 model Attribution {
@@ -90,7 +90,7 @@ model Attribution {
     dateDebut         DateTime
     dateFin           DateTime
     createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @default(now()) @updatedAt
+    updatedAt         DateTime?           @default(now()) @updatedAt
     user              User                @relation(fields: [userId], references: [id])
     AttributionCaisse AttributionCaisse[]
 }
@@ -102,7 +102,7 @@ model AttributionCaisse {
     status        String
     userId        String
     createdAt     DateTime    @default(now())
-    updatedAt     DateTime    @default(now()) @updatedAt
+    updatedAt     DateTime?   @default(now()) @updatedAt
     caisse        Caisse      @relation(fields: [caisseId], references: [id])
     user          User        @relation(fields: [userId], references: [id])
     attribution   Attribution @relation(fields: [attributionId], references: [id])
@@ -114,7 +114,7 @@ model BonMission {
     motif                  String
     serviceEmetteur        String
     beneficiaireId         String
-    matricule              String
+    matricule              String?
     nom                    String
     zoneIntervention       String
     mandataire             Boolean
@@ -151,7 +151,7 @@ model BonMission {
     texteAnnexe            String
     justify                Boolean
     createdAt              DateTime        @default(now())
-    updatedAt              DateTime        @default(now()) @updatedAt
+    updatedAt              DateTime?       @default(now()) @updatedAt
     beneficiaire           Agent           @relation(name: "beneficiaire_bon", fields: [beneficiaireId], references: [id])
     emetteur               Agent           @relation(name: "emetteur_bon", fields: [emetteurId], references: [id])
     moyenTransport         MoyenTransport  @relation(fields: [codeMoyenTransport], references: [code])
@@ -167,7 +167,7 @@ model Caisse {
     userId            String
     status            String
     createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @default(now()) @updatedAt
+    updatedAt         DateTime?           @default(now()) @updatedAt
     poste             Poste               @relation(fields: [posteId], references: [id])
     user              User                @relation(fields: [userId], references: [id])
     approvisionnement Approvisionnement[]
@@ -180,18 +180,18 @@ model CategorieAgent {
     code        String        @unique
     libelle     String
     createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @default(now()) @updatedAt
+    updatedAt   DateTime?     @default(now()) @updatedAt
     Agent       Agent[]
     GrilleFrais GrilleFrais[]
 }
 
 model CentreImputation {
-    id         String   @id @default(uuid())
-    code       String   @unique
+    id         String    @id @default(uuid())
+    code       String    @unique
     libelle    String
     codeEntite String
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @default(now()) @updatedAt
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime? @default(now()) @updatedAt
 
     ActiviteCI ActiviteCI[]
 
@@ -202,10 +202,10 @@ model Compte {
     id           String         @id @default(uuid())
     numero       String
     libelle      String
-    status       String
+    status       String?        @default("active")
     userId       String
     createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @default(now()) @updatedAt
+    updatedAt    DateTime?      @default(now()) @updatedAt
     user         User           @relation(fields: [userId], references: [id])
     NatureCompte NatureCompte[]
 }
@@ -215,19 +215,19 @@ model ConfigurationSchema {
     code            String
     libelle         String
     createdAt       DateTime          @default(now())
-    updatedAt       DateTime          @default(now()) @updatedAt
+    updatedAt       DateTime?         @default(now()) @updatedAt
     SchemaComptable SchemaComptable[]
 }
 
 model Delegation {
-    id         String   @id @default(uuid())
+    id         String    @id @default(uuid())
     dateDebut  DateTime
     dateFin    DateTime
     delegateTo String
     userId     String
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @default(now()) @updatedAt
-    user       User     @relation(fields: [userId], references: [id])
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime? @default(now()) @updatedAt
+    user       User      @relation(fields: [userId], references: [id])
 }
 
 model DepartArrive {
@@ -240,7 +240,7 @@ model DepartArrive {
     codeTypeArrivee    String
     codeTypeMission    String
     createdAt          DateTime             @default(now())
-    updatedAt          DateTime             @default(now()) @updatedAt
+    updatedAt          DateTime?            @default(now()) @updatedAt
     typeMission        TypeMission          @relation(fields: [codeTypeMission], references: [code])
     villeDepart        Ville                @relation(name: "Trajets_Depart", fields: [codeDepart], references: [code])
     villeArrive        Ville                @relation(name: "Trajets_Arrive", fields: [codeArrive], references: [code])
@@ -248,10 +248,10 @@ model DepartArrive {
 }
 
 model Example {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 }
 
 model Exploitation {
@@ -260,19 +260,19 @@ model Exploitation {
     libelle            String
     centreImputationId String
     createdAt          DateTime         @default(now())
-    updatedAt          DateTime         @default(now()) @updatedAt
+    updatedAt          DateTime?        @default(now()) @updatedAt
     centreImputation   CentreImputation @relation(fields: [centreImputationId], references: [id])
 }
 
 model File {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     name      String
     path      String
     bin       String
     size      Float
     type      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 }
 
 model Fonction {
@@ -280,7 +280,7 @@ model Fonction {
     code               String               @unique
     libelle            String
     createdAt          DateTime             @default(now())
-    updatedAt          DateTime             @default(now()) @updatedAt
+    updatedAt          DateTime?            @default(now()) @updatedAt
     GrilleKilometrique GrilleKilometrique[]
 }
 
@@ -290,7 +290,7 @@ model GrilleFrais {
     codeTypeFrais      String
     montant            Float
     createdAt          DateTime       @default(now())
-    updatedAt          DateTime       @default(now()) @updatedAt
+    updatedAt          DateTime?      @default(now()) @updatedAt
     categorieAgent     CategorieAgent @relation(fields: [codeCategorieAgent], references: [code])
     typeFrais          TypeFrais      @relation(fields: [codeTypeFrais], references: [code])
 }
@@ -301,7 +301,7 @@ model GrilleKilometrique {
     codeTypeCarburant String
     valeurTauxKm      Int
     createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @default(now()) @updatedAt
+    updatedAt         DateTime?     @default(now()) @updatedAt
     fonction          Fonction      @relation(fields: [codeFonction], references: [code])
     typeCarburant     TypeCarburant @relation(fields: [codeTypeCarburant], references: [code])
 }
@@ -309,11 +309,11 @@ model GrilleKilometrique {
 model ItineraireDistance {
     id             String       @id @default(uuid())
     codeItineraire String
-    matricule      String
+    matricule      String?
     distance       Float
     enVigueur      Float
     createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @default(now()) @updatedAt
+    updatedAt      DateTime?    @default(now()) @updatedAt
     departArrive   DepartArrive @relation(fields: [codeItineraire], references: [codeItineraire])
 }
 
@@ -329,7 +329,7 @@ model Justification {
     organisationId String
     userId         String
     createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @default(now()) @updatedAt
+    updatedAt      DateTime?    @default(now()) @updatedAt
     organisation   Organisation @relation(fields: [organisationId], references: [id])
     user           User         @relation(fields: [userId], references: [id])
     bonMission     BonMission   @relation(fields: [numeroBon], references: [numeroBon])
@@ -340,7 +340,7 @@ model MoyenTransport {
     code       String       @unique
     libelle    String
     createdAt  DateTime     @default(now())
-    updatedAt  DateTime     @default(now()) @updatedAt
+    updatedAt  DateTime?    @default(now()) @updatedAt
     BonMission BonMission[]
 }
 
@@ -350,28 +350,28 @@ model Nature {
     libelle      String
     userId       String
     createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @default(now()) @updatedAt
+    updatedAt    DateTime?      @default(now()) @updatedAt
     user         User           @relation(fields: [userId], references: [id])
     NatureCompte NatureCompte[]
 }
 
 model NatureCompte {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     compteId  String
     natureId  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    compte    Compte   @relation(fields: [compteId], references: [id])
-    nature    Nature   @relation(fields: [natureId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
+    compte    Compte    @relation(fields: [compteId], references: [id])
+    nature    Nature    @relation(fields: [natureId], references: [id])
 }
 
 model Numbon {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     prefix    String
     isUsed    Boolean
     numeroBon String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 }
 
 model Organisation {
@@ -381,7 +381,7 @@ model Organisation {
     userId        String?
     societyId     String?
     createdAt     DateTime        @default(now())
-    updatedAt     DateTime        @default(now()) @updatedAt
+    updatedAt     DateTime?       @default(now()) @updatedAt
     user          User?           @relation(fields: [userId], references: [id])
     societe       Societe?        @relation(fields: [societyId], references: [id])
     Justification Justification[]
@@ -389,39 +389,39 @@ model Organisation {
 }
 
 model Password {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     value     String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
     user      User?
 }
 
 model Poste {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     libelle   String
     adresseip String
     status    String
     userId    String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
+    user      User      @relation(fields: [userId], references: [id])
     Caisse    Caisse[]
 }
 
 model Profil {
     id             String       @id @default(uuid())
-    isDefault      Boolean
+    isDefault      Boolean?     @default(false)
     organisationId String
     roleId         String
     createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @default(now()) @updatedAt
+    updatedAt      DateTime?    @default(now()) @updatedAt
     organisation   Organisation @relation(fields: [organisationId], references: [id])
     role           Role         @relation(fields: [roleId], references: [id])
     User           User[]
 }
 
 model Reversement {
-    id              String   @id @default(uuid())
+    id              String    @id @default(uuid())
     caisseId        String
     userId          String
     beneficiaireId  String
@@ -430,20 +430,20 @@ model Reversement {
     motif           String
     dateReversement DateTime
     typeReversement String
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @default(now()) @updatedAt
-    caisse          Caisse   @relation(fields: [caisseId], references: [id])
-    user            User     @relation(fields: [userId], references: [id])
-    beneficiaire    Agent    @relation(fields: [beneficiaireId], references: [id])
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime? @default(now()) @updatedAt
+    caisse          Caisse    @relation(fields: [caisseId], references: [id])
+    user            User      @relation(fields: [userId], references: [id])
+    beneficiaire    Agent     @relation(fields: [beneficiaireId], references: [id])
 }
 
 model Role {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     name      String
-    status    String   @default("active")
+    status    String    @default("active")
     userId    String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
     Profil    Profil[]
 
     User User[]
@@ -456,20 +456,20 @@ model SchemaComptable {
     status          String
     userId          String
     createdAt       DateTime            @default(now())
-    updatedAt       DateTime            @default(now()) @updatedAt
+    updatedAt       DateTime?           @default(now()) @updatedAt
     configuration   ConfigurationSchema @relation(fields: [configurationId], references: [id])
     user            User                @relation(fields: [userId], references: [id])
 }
 
 model Societe {
     id           String         @id @default(uuid())
-    slug         String
-    name         String
-    code         String         @unique
+    slug         String?
+    name         String?
+    code         String?        @unique
     status       String         @default("active")
     userId       String?
     createdAt    DateTime       @default(now())
-    updatedAt    DateTime       @default(now()) @updatedAt
+    updatedAt    DateTime?      @default(now()) @updatedAt
     user         User?          @relation(fields: [userId], references: [id])
     Agent        Agent[]
     Organisation Organisation[]
@@ -480,7 +480,7 @@ model TypeCarburant {
     code               String               @unique
     libelle            String
     createdAt          DateTime             @default(now())
-    updatedAt          DateTime             @default(now()) @updatedAt
+    updatedAt          DateTime?            @default(now()) @updatedAt
     GrilleKilometrique GrilleKilometrique[]
 }
 
@@ -489,16 +489,16 @@ model TypeFrais {
     code        String        @unique
     libelle     String
     createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @default(now()) @updatedAt
+    updatedAt   DateTime?     @default(now()) @updatedAt
     GrilleFrais GrilleFrais[]
 }
 
 model TypeMission {
-    id        String   @id @default(uuid())
-    code      String   @unique
+    id        String    @id @default(uuid())
+    code      String    @unique
     libelle   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 
     DepartArrive DepartArrive[]
 }
@@ -515,9 +515,9 @@ model User {
     profileId         String?
     userId            String?
     passwordId        String?             @unique
-    lastLoginDate     DateTime            @default(now())
+    lastLoginDate     DateTime?           @default(now())
     createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @default(now()) @updatedAt
+    updatedAt         DateTime?           @default(now()) @updatedAt
     profile           Profil?             @relation(fields: [profileId], references: [id])
     role              Role?               @relation(fields: [roleId], references: [id])
     password          Password?           @relation(fields: [passwordId], references: [id])
@@ -538,22 +538,22 @@ model User {
 }
 
 model UserPriority {
-    id        String   @id @default(uuid())
-    code      String   @unique
+    id        String    @id @default(uuid())
+    code      String    @unique
     libelle   String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
 }
 
 model UserSession {
-    id        String   @id @default(uuid())
+    id        String    @id @default(uuid())
     userId    String
-    token     String   @unique
+    token     String    @unique
     startDate DateTime
     duration  DateTime
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
+    user      User      @relation(fields: [userId], references: [id])
 }
 
 model Ville {
@@ -562,17 +562,17 @@ model Ville {
     libelle        String
     codePays       String
     createdAt      DateTime       @default(now())
-    updatedAt      DateTime       @default(now()) @updatedAt
+    updatedAt      DateTime?      @default(now()) @updatedAt
     Trajets_Depart DepartArrive[] @relation(name: "Trajets_Depart")
     Trajets_Arrive DepartArrive[] @relation(name: "Trajets_Arrive")
 }
 
 model ZoneIntervention {
-    id        String   @id @default(uuid())
-    code      String   @unique
+    id        String    @id @default(uuid())
+    code      String    @unique
     libelle   String
     typeLieu  String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
+    createdAt DateTime  @default(now())
+    updatedAt DateTime? @default(now()) @updatedAt
     Agent     Agent[]
 }

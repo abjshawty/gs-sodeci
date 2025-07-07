@@ -1,3 +1,20 @@
+export const paginate = {
+    params: {
+        type: "object",
+        properties: {
+            page: { type: "number" }
+        },
+        required: ["page"],
+    },
+    querystring: {
+        type: "object",
+        properties: {
+            libelle: { type: "string" },
+        },
+        required: [],
+    },
+};
+
 export const search = {
     querystring: {
         type: "object",

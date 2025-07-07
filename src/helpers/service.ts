@@ -20,17 +20,17 @@ class Service<T> {
             throw error;
         }
     }
-    async getAll (): Promise<T[]> {
+    async getAll (options?: { where?: { [key: string]: string; }; include?: { [key: string]: boolean; }; }): Promise<T[]> {
         try {
-            return await this.controller.getAll();
+            return await this.controller.getAll(options);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;
         }
     }
-    async getById (id: string) {
+    async getById (id: string, options?: { include?: { [key: string]: boolean; }; }) {
         try {
-            return await this.controller.getById(id);
+            return await this.controller.getById(id, options);
         } catch (error: any) {
             if (!error.statusCode) error.statusCode = "500";
             throw error;
@@ -55,7 +55,6 @@ class Service<T> {
             throw error;
         }
     }
-
     async update (id: string, data: Partial<T>) {
         try {
             return await this.controller.update(id, data);
@@ -72,9 +71,9 @@ class Service<T> {
             throw error;
         }
     }
-    async search (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; }, strict: boolean = false) {
+    async search (query: { [key: string]: string; }, options?: { page?: number, take?: number, orderBy?: { [key: string]: "asc" | "desc"; }; include?: { [key: string]: boolean; }; }, strict: boolean = false): Promise<T[] | { record: T[], count: number, items: number, pages: number, currentPage: number; }> {
         try {
-            let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; };
+            let passingOptions: { take: number, skip: number, orderBy?: { [key: string]: "asc" | "desc"; }; include?: { [key: string]: boolean; }; };
             if (!options) passingOptions = {
                 take: 10,
                 skip: 0
@@ -83,7 +82,8 @@ class Service<T> {
                 passingOptions = {
                     take: options.take || 10,
                     skip: (options.page || 1) - 1,
-                    orderBy: options.orderBy
+                    orderBy: options.orderBy,
+                    include: options?.include
                 };
             }
             return strict ? await this.controller.search(query, passingOptions) : await this.controller.vagueSearch(query, passingOptions);

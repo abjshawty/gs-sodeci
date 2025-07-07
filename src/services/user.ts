@@ -101,9 +101,9 @@ class Service extends ServiceFactory<Build> {
         profileId: string | null;
         userId: string | null;
         passwordId: string | null;
-        lastLoginDate: Date;
+        lastLoginDate: Date | null;
         createdAt: Date;
-        updatedAt: Date;
+        updatedAt: Date | null;
     }) {
         try {
             if (!data.profileId || data.profileId === "") {
@@ -187,6 +187,7 @@ class Service extends ServiceFactory<Build> {
                 include: {
                     profile: {
                         include: {
+                            organisation: true,
                             role: true
                         }
                     }
@@ -197,7 +198,7 @@ class Service extends ServiceFactory<Build> {
             const formmated = initialResult.map((user) => {
                 return {
                     ...user,
-                    profile: [{ ...user.profile, roles: [user.profile?.role] }]
+                    profile: [{ ...user.profile, roles: [{ role: user.profile?.role }], role: { role: user.profile?.role } }]
                 };
             });
             return formmated;

@@ -1,10 +1,9 @@
 import { FastifyPluginCallback, FastifyReply, FastifyRequest } from "fastify";
 import jwt from '@fastify/jwt';
 import { jwtPublic, jwtSecret } from "../helpers/env";
-import { User as Build } from "@prisma/client";
-import { User as Service } from "../services";
+import { User as Build, Profil, User } from "@prisma/client";
+import { User as Service, Organisation as OrganisationService } from "../services";
 import { User as Schema } from "../schemas";
-import organisation from "../services/organisation";
 import { isValid } from "../helpers/auth";
 const routes: FastifyPluginCallback = (server) => {
     server.route({
@@ -88,7 +87,8 @@ const routes: FastifyPluginCallback = (server) => {
         handler: async (request: FastifyRequest<{ Body: { email: string; password: string; }; }>, reply: FastifyReply) => {
             console.log(request.body);
             let result = await Service.login(request.body);
-            const org = await organisation.getById(result.profile.organisationId);
+            let org = await OrganisationService.getById(result.profile.organisationId);
+            org = { ...org, _id: org.id };
             result.profile = [{ ...result.profile, _id: result.profile.id, organisation: org }];
             console.log(result);
             result = { ...result, _id: result.id };
@@ -194,6 +194,22 @@ const routes: FastifyPluginCallback = (server) => {
         handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
             const result = await Service.delete(request.params.id);
             reply.send({ data: result });
+        }
+    });
+
+    server.route({
+        method: "GET",
+        url: "/selectByOrganisation/:id",
+        handler: async (request: FastifyRequest<{ Params: { id: string; }; }>, reply: FastifyReply) => {
+            const users = await Service.getAll({ where: { status: "active" }, include: { profile: true } });
+            const validators: User[] = [];
+            users.forEach(user => { // @ts-ignore
+                if (user.profile) { // @ts-ignore
+                    let profile: Profil = user.profile;
+                    if (profile.organisationId === request.params.id) validators.push(user);
+                }
+            });
+            reply.send({ data: validators });
         }
     });
 };

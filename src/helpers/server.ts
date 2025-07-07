@@ -86,6 +86,7 @@ class Server {
     }
     private errorHandler (): void {
         this.server.setErrorHandler((error: FastifyError, request: FastifyRequest, response: FastifyReply) => {
+            console.error(error);
             response.status(error.statusCode ? error.statusCode : 500).send(error);
         });
     }

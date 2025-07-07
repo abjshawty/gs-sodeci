@@ -61,5 +61,15 @@ const routes: FastifyPluginCallback = (server) => {
             reply.send({ data: result });
         }
     });
+
+    server.route({
+        method: "GET",
+        url: "/paginate/:page",
+        schema: Schema.paginate,
+        handler: async (request: FastifyRequest<{ Querystring: { name: string; }; Params: { page: number; }; }>, reply: FastifyReply) => {
+            const result = await Service.search(request.query, { page: request.params.page });
+            reply.send({ data: result });
+        }
+    });
 };
 export default routes;

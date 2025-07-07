@@ -9,13 +9,31 @@ export const search = {
     },
 };
 
+export const paginate = {
+    params: {
+        type: "object",
+        properties: {
+            page: { type: "number" }
+        },
+        required: ["page"],
+    },
+    querystring: {
+        type: "object",
+        properties: {
+            numero: { type: "string" },
+            intitule: { type: "string" },
+        },
+        required: [],
+    },
+};
+
 export const getOrDelete = {
     params: {
         type: "object",
         properties: {
-            numero: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["numero"],
+        required: ["id"],
     },
 };
 
@@ -23,10 +41,10 @@ export const create = {
     body: {
         type: "object",
         properties: {
+            libelle: { type: "string" },
             numero: { type: "string" },
-            intitule: { type: "string" },
         },
-        required: ["numero", "intitule"],
+        required: ["libelle", "numero"],
     },
 };
 
@@ -34,14 +52,15 @@ export const update = {
     params: {
         type: "object",
         properties: {
-            numero: { type: "string" },
+            id: { type: "string" },
         },
-        required: ["numero"],
+        required: ["id"],
     },
     body: {
         type: "object",
         properties: {
-            intitule: { type: "string" },
+            numCompte: { type: "string" },
+            libCompte: { type: "string" },
         },
         required: [],
     },

@@ -1,3 +1,21 @@
+export const paginate = {
+    params: {
+        type: "object",
+        properties: {
+            page: { type: "number" }
+        },
+        required: ["page"],
+    },
+    querystring: {
+        type: "object",
+        properties: {
+            activiteId: { type: "string" },
+            centreImputationId: { type: "string" },
+        },
+        required: [],
+    },
+};
+
 export const search = {
     querystring: {
         type: "object",
